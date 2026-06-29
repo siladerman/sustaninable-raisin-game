@@ -1,0 +1,1465 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kuru Üzüm Üretimi LCA Oyunu</title>
+  <style>
+    :root {
+      --ink: #201f1c;
+      --muted: #667168;
+      --paper: #fffaf2;
+      --panel: rgba(255, 252, 246, 0.94);
+      --line: rgba(72, 45, 31, 0.16);
+      --field: #4f8b58;
+      --field-soft: #dfead3;
+      --factory: #8e2f2f;
+      --factory-soft: #f3dddd;
+      --water: #3b83a3;
+      --energy: #d1a137;
+      --fuel: #5e625d;
+      --good: #2f8a55;
+      --mid: #c6862a;
+      --bad: #b74b3f;
+      --shadow: 0 18px 44px rgba(52, 44, 35, 0.18);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #d7eef2 0%, #f7efe0 48%, #cfa476 100%);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      min-height: 100dvh;
+      padding: 8px;
+      overflow: hidden;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .phone {
+      position: relative;
+      width: calc(min(calc(100dvh - 16px), calc((100vw - 16px) * 16 / 9), 900px) * 9 / 16);
+      height: min(calc(100dvh - 16px), calc((100vw - 16px) * 16 / 9), 900px);
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      border: 1px solid rgba(32, 31, 28, 0.14);
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 82% 9%, rgba(230, 171, 67, 0.62) 0 48px, transparent 50px),
+        linear-gradient(180deg, #e8f5ef 0%, #f8f1e5 46%, #bd8756 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 210px;
+      background:
+        repeating-linear-gradient(174deg, rgba(255,255,255,0.09) 0 2px, transparent 2px 18px),
+        linear-gradient(180deg, #a8794c, #71462d);
+      pointer-events: none;
+    }
+
+    .game {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: auto auto auto minmax(265px, 1fr) auto;
+      height: 100%;
+      padding: max(15px, env(safe-area-inset-top)) 14px max(15px, env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .brand span {
+      color: #40574a;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .brand strong {
+      font-size: 1.05rem;
+      line-height: 1.1;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(32, 31, 28, 0.17);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 8px 20px rgba(32, 31, 28, 0.1);
+      cursor: pointer;
+    }
+
+    .icon-btn svg,
+    .primary svg,
+    .secondary svg {
+      width: 19px;
+      height: 19px;
+      stroke-width: 2.35;
+    }
+
+    .meter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .meter {
+      min-width: 0;
+      padding: 9px 10px;
+      border: 1px solid rgba(32, 31, 28, 0.13);
+      border-radius: 8px;
+      background: rgba(255, 252, 246, 0.86);
+      backdrop-filter: blur(14px);
+    }
+
+    .meter span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.66rem;
+      font-weight: 800;
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .meter strong {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(0.86rem, 4.1vw, 1.16rem);
+      line-height: 1;
+    }
+
+    .progress-wrap {
+      margin-top: 10px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      color: #42564d;
+      font-size: 0.74rem;
+      font-weight: 760;
+    }
+
+    .progress {
+      height: 9px;
+      overflow: hidden;
+      border: 1px solid rgba(32, 31, 28, 0.1);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .progress > i {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--field), var(--energy), var(--factory));
+      transition: width 320ms ease;
+    }
+
+    .field {
+      display: grid;
+      align-items: start;
+      min-height: 265px;
+      padding: 6px 0 2px;
+      z-index: 1;
+    }
+
+    .mascot-scene {
+      position: relative;
+      display: grid;
+      place-items: start center;
+      width: 100%;
+      min-height: 265px;
+      overflow: visible;
+    }
+
+    .scene-bubble {
+      position: absolute;
+      inset: 0 14px auto;
+      min-height: 46px;
+      padding: 9px 12px;
+      border: 1px solid rgba(32, 31, 28, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 252, 246, 0.82);
+      color: #41534a;
+      box-shadow: 0 10px 24px rgba(46, 40, 32, 0.12);
+      text-align: center;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .scene-bubble strong {
+      display: block;
+      font-size: 0.9rem;
+      line-height: 1.08;
+    }
+
+    .scene-bubble span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .mascot-wrap {
+      position: relative;
+      width: min(78%, 282px);
+      aspect-ratio: 1;
+      margin-top: 66px;
+      display: grid;
+      place-items: center;
+      transition: transform 360ms ease;
+    }
+
+    .mascot-shadow {
+      position: absolute;
+      left: 50%;
+      bottom: 11%;
+      width: 58%;
+      height: 12%;
+      border-radius: 50%;
+      background: rgba(54, 37, 25, 0.18);
+      transform: translateX(-50%);
+      filter: blur(1px);
+    }
+
+    .mascot {
+      position: relative;
+      width: 68%;
+      height: 80%;
+      border-radius: 50% 50% 46% 54% / 58% 56% 44% 42%;
+      background:
+        radial-gradient(circle at 33% 23%, rgba(255,255,255,0.55) 0 8%, transparent 9%),
+        radial-gradient(circle at 48% 42%, #9b6a43 0 20%, #653b23 58%, #351f16 100%);
+      box-shadow:
+        inset -17px -18px 24px rgba(38, 21, 13, 0.26),
+        inset 10px 9px 16px rgba(255, 231, 190, 0.12),
+        0 20px 24px rgba(48, 33, 23, 0.22);
+      animation: mascotBounce 1.6s ease-in-out infinite;
+    }
+
+    .mascot::before,
+    .mascot::after {
+      content: "";
+      position: absolute;
+      top: 32%;
+      width: 16%;
+      height: 17%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 32%, #fff 0 16%, transparent 18%),
+        radial-gradient(circle at 62% 66%, #4a2d22 0 12%, transparent 13%),
+        #171412;
+      box-shadow: 0 2px 0 rgba(255,255,255,0.16);
+    }
+
+    .mascot::before {
+      left: 24%;
+    }
+
+    .mascot::after {
+      right: 24%;
+    }
+
+    .smile {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      width: 34%;
+      height: 15%;
+      border-bottom: 5px solid #201713;
+      border-radius: 0 0 999px 999px;
+      transform: translateX(-50%);
+    }
+
+    .smile::before,
+    .smile::after {
+      content: "";
+      position: absolute;
+      top: 1px;
+      width: 12px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(228, 126, 103, 0.5);
+      filter: blur(0.2px);
+    }
+
+    .smile::before {
+      left: -26px;
+    }
+
+    .smile::after {
+      right: -26px;
+    }
+
+    .leaf-hat {
+      position: absolute;
+      left: 52%;
+      top: -13%;
+      width: 42%;
+      height: 28%;
+      border-radius: 8% 82% 12% 78%;
+      background:
+        radial-gradient(circle at 32% 28%, rgba(255,255,255,0.38) 0 10%, transparent 11%),
+        linear-gradient(135deg, #a6cf78, #3f7c4b);
+      transform: rotate(16deg);
+      transform-origin: left bottom;
+    }
+
+    .arm {
+      position: absolute;
+      top: 54%;
+      width: 30%;
+      height: 7%;
+      border-radius: 999px;
+      background: #5c351f;
+      transform-origin: center;
+    }
+
+    .arm.left {
+      left: -20%;
+      transform: rotate(-25deg);
+    }
+
+    .arm.right {
+      right: -20%;
+      transform: rotate(25deg);
+    }
+
+    .stage-prop {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 1px solid rgba(32, 31, 28, 0.12);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--factory);
+      box-shadow: 0 12px 18px rgba(48, 33, 23, 0.12);
+      transition: transform 320ms ease, opacity 220ms ease;
+    }
+
+    .stage-prop svg {
+      width: 27px;
+      height: 27px;
+      stroke-width: 2.2;
+    }
+
+    .prop-left {
+      left: 4%;
+      bottom: 13%;
+    }
+
+    .prop-right {
+      right: 4%;
+      bottom: 17%;
+    }
+
+    .spark {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #f2c85d;
+      opacity: 0;
+      transform: translateY(0) scale(0.5);
+    }
+
+    .spark.one { left: 22%; top: 34%; }
+    .spark.two { right: 24%; top: 28%; background: #6aa568; }
+    .spark.three { right: 31%; bottom: 31%; background: #d78e5a; }
+
+    .mascot-scene.pop .spark {
+      animation: sparkle 560ms ease-out;
+    }
+
+    .mascot-scene.pop .mascot-wrap {
+      transform: translateY(-6px) rotate(-2deg);
+    }
+
+    .mascot-scene[data-phase="field"] .prop-left { color: var(--water); }
+    .mascot-scene[data-phase="transport"] .mascot-wrap { transform: translateX(8px); }
+    .mascot-scene[data-phase="wash"] .prop-left,
+    .mascot-scene[data-phase="wash"] .prop-right { color: var(--water); }
+    .mascot-scene[data-phase="trim"] .arm.left { transform: rotate(-48deg); }
+    .mascot-scene[data-phase="dry"] .scene-bubble { background: rgba(255, 244, 206, 0.88); }
+    .mascot-scene[data-phase="dry"] .mascot { filter: saturate(1.15) brightness(1.06); }
+    .mascot-scene[data-phase="thermo"] .mascot-wrap { transform: scale(0.96); }
+    .mascot-scene[data-phase="oil"] .prop-left,
+    .mascot-scene[data-phase="sort"] .prop-right { color: var(--energy); }
+    .mascot-scene[data-phase="oil"] .mascot { box-shadow: inset -16px -18px 24px rgba(38, 21, 13, 0.22), 0 0 20px rgba(231, 182, 79, 0.36), 0 20px 24px rgba(48, 33, 23, 0.2); }
+    .mascot-scene[data-phase="pack"] .prop-left,
+    .mascot-scene[data-phase="storage"] .prop-right { color: var(--factory); }
+    .mascot-scene[data-phase="shipping"] .mascot-wrap { transform: translateX(12px) rotate(4deg); }
+
+    @keyframes mascotBounce {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-7px) rotate(1deg); }
+    }
+
+    @keyframes sparkle {
+      0% { opacity: 0; transform: translateY(0) scale(0.4); }
+      35% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-28px) scale(1.1); }
+    }
+
+    .stage-card {
+      position: relative;
+      align-self: end;
+      display: grid;
+      gap: 8px;
+      max-height: 37vh;
+      overflow: auto;
+      padding: 12px;
+      border: 1px solid rgba(32, 31, 28, 0.14);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 18px 32px rgba(63, 52, 39, 0.18);
+      backdrop-filter: blur(18px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .stage-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .stage-kicker .tag {
+      max-width: 45%;
+      overflow: hidden;
+      color: #31473c;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stage-title {
+      margin: 0;
+      font-size: clamp(1.06rem, 4.6vw, 1.4rem);
+      line-height: 1.08;
+    }
+
+    .stage-copy {
+      margin: -4px 0 0;
+      color: #52645d;
+      font-size: 0.82rem;
+      line-height: 1.28;
+    }
+
+    .options {
+      display: grid;
+      gap: 7px;
+    }
+
+    .choice {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(32, 31, 28, 0.16);
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: left;
+      box-shadow: 0 8px 16px rgba(31, 39, 35, 0.07);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .choice:active {
+      transform: scale(0.99);
+    }
+
+    .choice:hover,
+    .choice:focus-visible {
+      outline: 0;
+      border-color: rgba(47, 138, 85, 0.58);
+      background: #f3faf0;
+      box-shadow: 0 12px 20px rgba(47, 138, 85, 0.14);
+    }
+
+    .choice strong {
+      display: block;
+      font-size: 0.86rem;
+      line-height: 1.18;
+      font-weight: 760;
+    }
+
+    .feedback {
+      display: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.3;
+    }
+
+    .feedback.show {
+      display: grid;
+      gap: 8px;
+    }
+
+    .feedback {
+      border: 1px solid rgba(198, 134, 42, 0.2);
+      background: #fff4dc;
+      color: #4f4736;
+    }
+
+    .impact-line {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .impact-pill {
+      padding: 7px 8px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .primary,
+    .secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 46px;
+      border-radius: 8px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .primary {
+      border: 0;
+      background: var(--field);
+      color: #fff;
+    }
+
+    .secondary {
+      border: 1px solid rgba(32, 31, 28, 0.15);
+      background: #fff;
+      color: #3e4f46;
+    }
+
+    .start,
+    .result {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: end center;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(215, 238, 242, 0.06), rgba(74, 51, 38, 0.34)),
+        transparent;
+    }
+
+    .start[hidden],
+    .result[hidden] {
+      display: none;
+    }
+
+    .modal {
+      width: 100%;
+      display: grid;
+      gap: 13px;
+      padding: 18px;
+      border: 1px solid rgba(32, 31, 28, 0.16);
+      border-radius: 16px;
+      background: rgba(255, 252, 246, 0.97);
+      box-shadow: var(--shadow);
+    }
+
+    .modal h1,
+    .modal h2 {
+      margin: 0;
+      line-height: 1.03;
+    }
+
+    .modal h1 {
+      font-size: clamp(1.9rem, 9.4vw, 3.25rem);
+    }
+
+    .modal h2 {
+      font-size: clamp(1.58rem, 7vw, 2.25rem);
+    }
+
+    .modal p {
+      margin: 0;
+      color: #52645d;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .result-visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 92px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fff8e8, #eef6ed);
+      border: 1px solid var(--line);
+    }
+
+    .result-raisin {
+      position: relative;
+      width: 74px;
+      height: 88px;
+      border-radius: 48% 52% 45% 55% / 56% 54% 46% 44%;
+      background:
+        radial-gradient(circle at 35% 26%, rgba(255,255,255,0.34) 0 9%, transparent 10%),
+        radial-gradient(circle at 48% 44%, #865737 0 22%, #57331e 58%, #321e15 100%);
+      box-shadow: inset -12px -14px 22px rgba(38, 21, 13, 0.24), 0 13px 16px rgba(48, 33, 23, 0.18);
+      animation: happyDance 780ms ease-in-out infinite;
+    }
+
+    .result-raisin::before,
+    .result-raisin::after {
+      content: "";
+      position: absolute;
+      top: 33%;
+      width: 10px;
+      height: 12px;
+      border-radius: 50%;
+      background: #171412;
+      box-shadow: inset 2px 2px 0 rgba(255,255,255,0.42);
+    }
+
+    .result-raisin::before { left: 22px; }
+    .result-raisin::after { right: 22px; }
+
+    .result-mouth {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      width: 24px;
+      height: 12px;
+      border-bottom: 4px solid #201713;
+      border-radius: 0 0 999px 999px;
+      transform: translateX(-50%);
+    }
+
+    .result-tear {
+      position: absolute;
+      top: 44%;
+      right: 18px;
+      width: 8px;
+      height: 12px;
+      border-radius: 60% 60% 70% 70%;
+      background: #73b8d8;
+      opacity: 0;
+    }
+
+    .result-visual.cry .result-raisin {
+      animation: sadWobble 900ms ease-in-out infinite;
+    }
+
+    .result-visual.cry .result-mouth {
+      top: 63%;
+      border-bottom: 0;
+      border-top: 4px solid #201713;
+      border-radius: 999px 999px 0 0;
+    }
+
+    .result-visual.cry .result-tear {
+      animation: tearDrop 920ms ease-in infinite;
+    }
+
+    .result-visual.celebrate .result-raisin {
+      animation: happyDance 560ms ease-in-out infinite;
+    }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti i {
+      position: absolute;
+      top: -16px;
+      width: 7px;
+      height: 12px;
+      border-radius: 2px;
+      background: var(--field);
+      opacity: 0;
+      animation: confettiFall 1300ms ease-out forwards;
+    }
+
+    .confetti i:nth-child(3n) { background: #e7b64f; }
+    .confetti i:nth-child(4n) { background: #c85c5c; }
+    .confetti i:nth-child(5n) { background: #5b9fbd; }
+
+    @keyframes happyDance {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    @keyframes sadWobble {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      35% { transform: translateX(-3px) rotate(-2deg); }
+      70% { transform: translateX(3px) rotate(2deg); }
+    }
+
+    @keyframes tearDrop {
+      0% { opacity: 0; transform: translateY(0) scale(0.5); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(28px) scale(1); }
+    }
+
+    @keyframes confettiFall {
+      0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(126px) rotate(260deg); }
+    }
+
+    .summary {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f4eadb;
+    }
+
+    .summary span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.64rem;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .summary strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .history {
+      display: grid;
+      gap: 7px;
+      max-height: 170px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.76rem;
+      line-height: 1.2;
+    }
+
+    .history-row b {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .history-row i {
+      font-style: normal;
+      font-weight: 850;
+    }
+
+    @media (max-height: 760px) {
+      body {
+        padding: 8px;
+      }
+
+      .game {
+        grid-template-rows: auto auto auto minmax(235px, 1fr) auto;
+      }
+
+      .field,
+      .mascot-scene {
+        min-height: 235px;
+      }
+
+      .mascot-wrap {
+        width: min(52%, 165px);
+        margin-top: 50px;
+      }
+
+      .mascot {
+        width: 78%;
+        height: 86%;
+      }
+
+      .scene-bubble {
+        inset: 0 10px auto;
+      }
+
+      .stage-prop {
+        width: 43px;
+        height: 43px;
+      }
+
+      .stage-card {
+        max-height: 33vh;
+        gap: 7px;
+        padding: 11px;
+      }
+
+      .stage-copy {
+        display: none;
+      }
+
+      .choice {
+        min-height: 42px;
+        padding: 9px 11px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" aria-label="Kuru üzüm üretimi yaşam döngüsü değerlendirmesi oyunu">
+    <section class="game">
+      <header class="topbar">
+        <div class="brand">
+          <span>Cradle-to-Gate LCA</span>
+          <strong>Kuru Üzüm Üretim Rotası</strong>
+        </div>
+        <button class="icon-btn" id="restartTop" type="button" aria-label="Oyunu yeniden başlat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v6h6"></path>
+          </svg>
+        </button>
+      </header>
+
+      <div class="meter-grid" aria-live="polite">
+        <div class="meter">
+          <span>Puan</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="meter">
+          <span>GWP Etkisi</span>
+          <strong id="impactMeter">Başlangıç</strong>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="stepText">Karar 1 / 15</span>
+          <span id="bestText">En iyi: 0</span>
+        </div>
+        <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+      </div>
+
+      <section class="field" aria-hidden="true">
+        <div class="mascot-scene" id="mascotScene" data-phase="field">
+          <div class="scene-bubble">
+            <strong id="sceneTitle">Bağda büyüyor</strong>
+            <span id="sceneText">Maskot üzüm yolculuğa hazır.</span>
+          </div>
+          <span class="spark one"></span>
+          <span class="spark two"></span>
+          <span class="spark three"></span>
+          <div class="stage-prop prop-left" id="propLeft"></div>
+          <div class="mascot-wrap">
+            <span class="mascot-shadow"></span>
+            <div class="mascot">
+              <span class="leaf-hat"></span>
+              <span class="arm left"></span>
+              <span class="arm right"></span>
+              <span class="smile"></span>
+            </div>
+          </div>
+          <div class="stage-prop prop-right" id="propRight"></div>
+        </div>
+      </section>
+
+      <article class="stage-card" aria-live="polite">
+        <div class="stage-kicker">
+          <span id="stageCategory">Bağ Üretimi</span>
+          <span class="tag" id="inputTag">Girdi: Su</span>
+        </div>
+        <h2 class="stage-title" id="stageTitle">Karar başlığı</h2>
+        <p class="stage-copy" id="stageCopy">Karar açıklaması</p>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"></div>
+      </article>
+    </section>
+
+    <section class="start" id="startScreen">
+      <div class="modal">
+        <h1>Kuru Üzüm LCA Rotası</h1>
+        <p>Bağdan fabrikaya, kurutmadan kargoya kadar ilerle. Her seçim düşük, orta veya yüksek GWP etkisi olarak değerlendirilir; sayısal hesap yerine oyun puanı ve etki sınıfı kullanılır.</p>
+        <button class="primary" type="button" id="startBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M5 3l14 9-14 9V3Z"></path>
+          </svg>
+          Başlat
+        </button>
+      </div>
+    </section>
+
+    <section class="result" id="resultScreen" hidden>
+      <div class="modal">
+        <h2 id="resultTitle">Sistem sınırı tamamlandı</h2>
+        <p id="resultCopy"></p>
+        <div class="result-visual" id="resultVisual">
+          <div class="confetti" id="confetti"></div>
+          <div class="result-raisin">
+            <span class="result-mouth"></span>
+            <span class="result-tear"></span>
+          </div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary">
+            <span>Puan</span>
+            <strong id="finalScore">0</strong>
+          </div>
+          <div class="summary">
+            <span>GWP Etkisi</span>
+            <strong id="finalImpact">-</strong>
+          </div>
+          <div class="summary">
+            <span>Sonuç</span>
+            <strong id="finalAward">-</strong>
+          </div>
+        </div>
+        <div class="history" id="history"></div>
+        <button class="primary" type="button" id="restartBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v6h6"></path>
+          </svg>
+          Yeniden oyna
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const stages = [
+      {
+        category: "Bağdan Çıkış",
+        input: "Su ve bakım",
+        boundary: 0,
+        title: "Üzüm bağdan nasıl ayrılıyor? 🌿",
+        copy: "Yetiştirme kısa tutulur; oyun ağırlıklı olarak fabrika proseslerine odaklanır.",
+        options: [
+          { label: "Sensörlü sulama ve kayıtlı bakım", points: 10, impact: "good" },
+          { label: "Standart sulama ve dönemsel bakım", points: 5, impact: "mid" },
+          { label: "Plansız sulama ve yoğun girdi kullanımı", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Hasat ve Giriş",
+        input: "Taşıma",
+        boundary: 1,
+        title: "Kasa fabrikaya nasıl geliyor? 🚚",
+        copy: "Bu aşamada ürün kaybı ve taşıma düzeni önemlidir.",
+        options: [
+          { label: "Tam dolu araç ve kısa bekleme", points: 10, impact: "good" },
+          { label: "Normal araç doluluğu ve standart bekleme", points: 5, impact: "mid" },
+          { label: "Parçalı taşıma ve uzun bekleme", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Hammadde Kabul",
+        input: "Kalite kontrol",
+        boundary: 2,
+        title: "Fabrikada ilk kontrol nasıl yapılıyor? 🔍",
+        copy: "Nem, yabancı madde ve parti takibi sonraki prosesleri etkiler.",
+        options: [
+          { label: "Nem ölçümü ve parti izlenebilirliği", points: 10, impact: "good" },
+          { label: "Temel tartım ve görsel kontrol", points: 5, impact: "mid" },
+          { label: "Karışık parti kabulü", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Yıkama",
+        input: "Su",
+        boundary: 3,
+        title: "Üzüm nasıl yıkanıyor? 💧",
+        copy: "Yıkama suyu ve atık su yükü nitel etki sınıfını belirler.",
+        options: [
+          { label: "Filtrasyonlu kapalı devre yıkama", points: 10, impact: "good" },
+          { label: "Kontrollü tek geçişli yıkama", points: 5, impact: "mid" },
+          { label: "Sürekli açık suyla yıkama", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Sap Ayırma",
+        input: "Elektrik",
+        boundary: 4,
+        title: "Sap ve yabancı maddeler nasıl ayrılıyor? ✂️",
+        copy: "Ekipman verimi, ürün kaybını ve elektrik etkisini değiştirir.",
+        options: [
+          { label: "Verimli hassas sap ayırma hattı", points: 10, impact: "good" },
+          { label: "Standart mekanik ayırma", points: 5, impact: "mid" },
+          { label: "Tekrarlı geçiş gerektiren eski ekipman", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Kurutma",
+        input: "Enerji",
+        boundary: 5,
+        title: "Kurutma yöntemi ne olsun? ☀️",
+        copy: "Kurutma prosesi kuru üzüm üretiminde kritik etki noktalarından biridir.",
+        options: [
+          { label: "Hijyenik güneş kurutma", points: 10, impact: "good" },
+          { label: "Hibrit düşük enerjili kurutucu", points: 5, impact: "mid" },
+          { label: "Fosil yakıtlı hızlı kurutma", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Kurutma Kontrolü",
+        input: "Nem",
+        boundary: 6,
+        title: "Nem kontrolü nasıl yönetiliyor? 🌡️",
+        copy: "Aşırı kurutma enerji kaybı, eksik kurutma ise yeniden işlem riski oluşturur.",
+        options: [
+          { label: "Sensörlü nem takibi", points: 10, impact: "good" },
+          { label: "Parti sonu manuel kontrol", points: 5, impact: "mid" },
+          { label: "Tahmini süreyle kontrolsüz kurutma", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Yağlama",
+        input: "Yardımcı madde",
+        boundary: 7,
+        title: "Yağlama uygulaması nasıl yapılsın? ✨",
+        copy: "Doz ve uygulama düzeni yardımcı madde etkisini belirler.",
+        options: [
+          { label: "Düşük doz otomatik püskürtme", points: 10, impact: "good" },
+          { label: "Standart manuel yağlama", points: 5, impact: "mid" },
+          { label: "Aşırı yağ kullanımı", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Ayıklama",
+        input: "Hat seçimi",
+        boundary: 8,
+        title: "Ayıklama hattı nasıl çalışsın? 🎛️",
+        copy: "Ayıklama kalitesi, fire ve tekrar işlem miktarını etkiler.",
+        options: [
+          { label: "Optik ayıklama ve yan ürün değerlendirme", points: 10, impact: "good" },
+          { label: "Standart elek ve manuel kontrol", points: 5, impact: "mid" },
+          { label: "Tekrarlı ayıklama ve yüksek fire", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Paketleme",
+        input: "Ambalaj",
+        boundary: 9,
+        title: "Paketleme nasıl olsun? 📦",
+        copy: "Ambalaj kütlesi ve koruma seviyesi birlikte düşünülür.",
+        options: [
+          { label: "Hafif ve geri dönüştürülebilir ambalaj", points: 10, impact: "good" },
+          { label: "Standart plastik ambalaj", points: 5, impact: "mid" },
+          { label: "Ağır ve çok katmanlı ambalaj", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Depolama",
+        input: "Elektrik",
+        boundary: 10,
+        title: "Depoda nasıl beklesin? 🏬",
+        copy: "Nem ve sıcaklık yönetimi ürün kaybını azaltabilir.",
+        options: [
+          { label: "Nem izlemeli pasif serinletme", points: 10, impact: "good" },
+          { label: "Standart depo havalandırması", points: 5, impact: "mid" },
+          { label: "Kontrolsüz sıcak depo", points: 0, impact: "bad" }
+        ]
+      },
+      {
+        category: "Kargo Ülkesi",
+        input: "Lojistik",
+        boundary: 11,
+        title: "Kuru üzüm nereye kargolansın? 🌍",
+        copy: "Son karar taşıma mesafesine göre düşük, orta veya yüksek etki verir.",
+        options: [
+          { label: "Türkiye içi sevkiyat", points: 10, impact: "good" },
+          { label: "Avrupa pazarı", points: 5, impact: "mid" },
+          { label: "Japonya pazarı", points: 0, impact: "bad" }
+        ]
+      }
+    ];
+
+    const visualStages = [
+      { phase: "field", title: "Bağdan çıkıyor", text: "Minik maskot yaprağını taktı.", left: "drop", right: "leaf" },
+      { phase: "transport", title: "Kasada yolculuk", text: "Fabrikaya doğru sallana sallana gidiyor.", left: "truck", right: "pin" },
+      { phase: "check", title: "Kontrol masasında", text: "Büyüteçle kalite kontrol zamanı.", left: "scale", right: "search" },
+      { phase: "wash", title: "Köpüklü banyo", text: "Üzüm maskot tertemiz oluyor.", left: "drop", right: "sparkle" },
+      { phase: "trim", title: "Saplardan ayrılıyor", text: "Küçük bir makas dansı başlıyor.", left: "scissors", right: "leaf" },
+      { phase: "dry", title: "Kurutma sahnesi", text: "Güneş gözlüğüyle kuruyor.", left: "sun", right: "sparkle" },
+      { phase: "thermo", title: "Nem takibi", text: "Tam kıvamı yakalamaya çalışıyor.", left: "thermo", right: "drop" },
+      { phase: "oil", title: "Parlıyor", text: "Üstüne minicik bir parlaklık geliyor.", left: "sparkle", right: "stars" },
+      { phase: "sort", title: "Ayıklama pisti", text: "Hat üzerinde ritim tutuyor.", left: "scan", right: "stars" },
+      { phase: "pack", title: "Kutuda poz", text: "Ambalajına yerleşiyor.", left: "box", right: "check" },
+      { phase: "storage", title: "Depoda bekliyor", text: "Serin köşesinde sabırla duruyor.", left: "warehouse", right: "thermo" },
+      { phase: "shipping", title: "Dünya turu", text: "Son durak seçiliyor.", left: "globe", right: "truck" }
+    ];
+
+    const propIcons = {
+      drop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"></path></svg>',
+      leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 21c9-1 14-7 14-16-9 0-15 5-16 14"></path><path d="M9 15c2-4 5-6 10-10"></path></svg>',
+      truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h11v10H3z"></path><path d="M14 10h4l3 3v4h-7z"></path><circle cx="7" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg>',
+      pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s7-5.4 7-12a7 7 0 1 0-14 0c0 6.6 7 12 7 12Z"></path><circle cx="12" cy="9" r="2"></circle></svg>',
+      scale: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 20h10"></path><path d="M6 16l3-9h6l3 9"></path><path d="M12 7V3"></path><path d="M9 3h6"></path></svg>',
+      search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg>',
+      sparkle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"></path></svg>',
+      scan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7V5a1 1 0 0 1 1-1h2"></path><path d="M17 4h2a1 1 0 0 1 1 1v2"></path><path d="M20 17v2a1 1 0 0 1-1 1h-2"></path><path d="M7 20H5a1 1 0 0 1-1-1v-2"></path><path d="M7 12h10"></path></svg>',
+      stars: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 4l1.1 3.1L13 8.2l-2.9 1.1L9 12l-1.1-2.7L5 8.2l2.9-1.1L9 4Z"></path><path d="M17 12l.8 2.2L20 15l-2.2.8L17 18l-.8-2.2L14 15l2.2-.8L17 12Z"></path></svg>',
+      scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M20 4 8.5 15.5"></path><path d="M8.5 8.5 20 20"></path></svg>',
+      sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.9 4.9 1.4 1.4"></path><path d="m17.7 17.7 1.4 1.4"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m4.9 19.1 1.4-1.4"></path><path d="m17.7 6.3 1.4-1.4"></path></svg>',
+      thermo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0Z"></path><path d="M12 8v8"></path></svg>',
+      globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c3 3 3 15 0 18"></path><path d="M12 3c-3 3-3 15 0 18"></path></svg>',
+      box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21 8-9-5-9 5 9 5 9-5Z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></svg>',
+      check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"></path></svg>',
+      warehouse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21V8l9-5 9 5v13"></path><path d="M7 21v-8h10v8"></path><path d="M9 16h6"></path></svg>'
+    };
+    const stepDelayMs = 360;
+    let audioContext;
+
+    const state = {
+      step: 0,
+      score: 0,
+      lastImpact: "Başlangıç",
+      history: []
+    };
+
+    const els = {
+      start: document.getElementById("startScreen"),
+      result: document.getElementById("resultScreen"),
+      startBtn: document.getElementById("startBtn"),
+      restartBtn: document.getElementById("restartBtn"),
+      restartTop: document.getElementById("restartTop"),
+      score: document.getElementById("score"),
+      impactMeter: document.getElementById("impactMeter"),
+      bestText: document.getElementById("bestText"),
+      stepText: document.getElementById("stepText"),
+      progress: document.getElementById("progressBar"),
+      category: document.getElementById("stageCategory"),
+      inputTag: document.getElementById("inputTag"),
+      title: document.getElementById("stageTitle"),
+      copy: document.getElementById("stageCopy"),
+      options: document.getElementById("options"),
+      stageCard: document.querySelector(".stage-card"),
+      feedback: document.getElementById("feedback"),
+      mascotScene: document.getElementById("mascotScene"),
+      sceneTitle: document.getElementById("sceneTitle"),
+      sceneText: document.getElementById("sceneText"),
+      propLeft: document.getElementById("propLeft"),
+      propRight: document.getElementById("propRight"),
+      finalScore: document.getElementById("finalScore"),
+      finalImpact: document.getElementById("finalImpact"),
+      finalAward: document.getElementById("finalAward"),
+      resultVisual: document.getElementById("resultVisual"),
+      confetti: document.getElementById("confetti"),
+      resultTitle: document.getElementById("resultTitle"),
+      resultCopy: document.getElementById("resultCopy"),
+      history: document.getElementById("history")
+    };
+
+    function getBest() {
+      return Number(localStorage.getItem("raisinLcaBestV2") || 0);
+    }
+
+    function setBest(score) {
+      const best = Math.max(getBest(), score);
+      localStorage.setItem("raisinLcaBestV2", String(best));
+      return best;
+    }
+
+    function maxScore() {
+      return stages.length * 10;
+    }
+
+    function impactLabel(impact) {
+      if (impact === "good") return "Düşük";
+      if (impact === "mid") return "Orta";
+      if (impact === "bad") return "Yüksek";
+      return "Başlangıç";
+    }
+
+    function resultTier(score) {
+      if (score >= maxScore() - 20) return "good";
+      if (score > 50) return "mid";
+      return "bad";
+    }
+
+    function awardFor(score) {
+      const tier = resultTier(score);
+      if (tier === "good") return "Harika Sonuç";
+      if (tier === "mid") return "Orta Sonuç";
+      return "Dikkat Gerekli";
+    }
+
+    function finalImpactFor(score) {
+      const tier = resultTier(score);
+      if (tier === "good") return "Düşük";
+      if (tier === "mid") return "Orta";
+      return "Yüksek";
+    }
+
+    function shuffleOptions(options) {
+      const copy = options.slice();
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+      }
+      return copy;
+    }
+
+    function renderScene(boundary) {
+      const visual = visualStages[boundary] || visualStages[0];
+      els.mascotScene.dataset.phase = visual.phase;
+      els.sceneTitle.textContent = visual.title;
+      els.sceneText.textContent = visual.text;
+      els.propLeft.innerHTML = propIcons[visual.left] || "";
+      els.propRight.innerHTML = propIcons[visual.right] || "";
+    }
+
+    function renderStats() {
+      els.score.textContent = state.score;
+      els.impactMeter.textContent = state.lastImpact;
+      els.bestText.textContent = "En iyi: " + getBest();
+      els.stepText.textContent = "Karar " + Math.min(state.step + 1, stages.length) + " / " + stages.length;
+      els.progress.style.width = (state.step / stages.length * 100) + "%";
+    }
+
+    function renderStage() {
+      const stage = stages[state.step];
+      renderStats();
+      renderScene(stage.boundary);
+      els.category.textContent = stage.category;
+      els.inputTag.textContent = "Girdi: " + stage.input;
+      els.title.textContent = stage.title;
+      els.copy.textContent = stage.copy;
+      els.feedback.classList.remove("show");
+      els.feedback.innerHTML = "";
+      els.options.innerHTML = "";
+      els.stageCard.scrollTop = 0;
+      els.stageCard.style.opacity = "1";
+      els.stageCard.style.transform = "translateY(0)";
+
+      let visibleOptions = shuffleOptions(stage.options);
+      const keptOriginalOrder = visibleOptions.every((option, index) => option === stage.options[index]);
+      if (keptOriginalOrder) {
+        visibleOptions = visibleOptions.slice().reverse();
+      }
+
+      visibleOptions.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "choice";
+        button.type = "button";
+        button.dataset.choiceIndex = String(index);
+        button.innerHTML = `
+          <strong>${option.label}</strong>
+        `;
+        button.addEventListener("click", () => chooseOption(option));
+        els.options.appendChild(button);
+      });
+    }
+
+    function playChoiceSound() {
+      try {
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioContext.currentTime;
+        const gain = audioContext.createGain();
+        const first = audioContext.createOscillator();
+        const second = audioContext.createOscillator();
+        first.type = "sine";
+        second.type = "triangle";
+        first.frequency.setValueAtTime(660, now);
+        first.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+        second.frequency.setValueAtTime(990, now + 0.06);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.08, now + 0.018);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        first.connect(gain);
+        second.connect(gain);
+        gain.connect(audioContext.destination);
+        first.start(now);
+        second.start(now + 0.045);
+        first.stop(now + 0.18);
+        second.stop(now + 0.18);
+      } catch (error) {
+        // Ses desteklenmiyorsa oyun sessiz devam eder.
+      }
+    }
+
+    function pulseMascot() {
+      els.mascotScene.classList.remove("pop");
+      void els.mascotScene.offsetWidth;
+      els.mascotScene.classList.add("pop");
+      setTimeout(() => els.mascotScene.classList.remove("pop"), 620);
+    }
+
+    function chooseOption(option) {
+      const stage = stages[state.step];
+      playChoiceSound();
+      pulseMascot();
+      state.score += option.points;
+      state.lastImpact = impactLabel(option.impact);
+      state.history.push({
+        stage: stage.category,
+        title: stage.title,
+        choice: option.label,
+        points: option.points,
+        impact: impactLabel(option.impact)
+      });
+
+      renderStats();
+      Array.from(els.options.children).forEach((button) => {
+        button.disabled = true;
+      });
+      els.stageCard.style.opacity = "0";
+      els.stageCard.style.transform = "translateY(10px)";
+
+      setTimeout(() => {
+        state.step += 1;
+        if (state.step >= stages.length) {
+          showResult();
+        } else {
+          renderStage();
+        }
+      }, stepDelayMs);
+    }
+
+    function showResult() {
+      const best = setBest(state.score);
+      const award = awardFor(state.score);
+      const tier = resultTier(state.score);
+      els.progress.style.width = "100%";
+      renderScene(stages.length - 1);
+      els.finalScore.textContent = state.score;
+      els.finalImpact.textContent = finalImpactFor(state.score);
+      els.finalAward.textContent = award;
+      els.bestText.textContent = "En iyi: " + best;
+      els.resultTitle.textContent = award;
+      els.resultCopy.textContent = resultMessage(award);
+      els.resultVisual.className = "result-visual " + (tier === "good" ? "celebrate" : tier === "mid" ? "happy" : "cry");
+      els.confetti.innerHTML = "";
+      if (tier === "good") {
+        launchConfetti();
+      }
+      els.history.innerHTML = state.history.map((item) => `
+        <div class="history-row">
+          <span><b>${item.stage}</b><br>${item.choice}</span>
+          <i>+${item.points} / ${item.impact}</i>
+        </div>
+      `).join("");
+      els.result.hidden = false;
+    }
+
+    function resultMessage(award) {
+      if (award === "Harika Sonuç") {
+        return "Maksimum puana çok yakın bir rota seçtin. Kuru üzüm maskotu bu sonucu konfetiyle kutluyor.";
+      }
+      if (award === "Orta Sonuç") {
+        return "Rota fena değil. Maskot gülümsüyor, ama bazı proseslerde daha düşük etkili seçimler yapılabilir.";
+      }
+      return "Bu rotada çevresel etki riski yüksek kaldı. Maskot üzüm biraz üzgün; özellikle kurutma, ambalaj ve kargo kararları tekrar düşünülebilir.";
+    }
+
+    function launchConfetti() {
+      const pieces = 34;
+      for (let index = 0; index < pieces; index += 1) {
+        const piece = document.createElement("i");
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.animationDelay = Math.random() * 260 + "ms";
+        piece.style.transform = "rotate(" + Math.random() * 180 + "deg)";
+        els.confetti.appendChild(piece);
+      }
+    }
+
+    function resetGame() {
+      state.step = 0;
+      state.score = 0;
+      state.lastImpact = "Başlangıç";
+      state.history = [];
+      els.result.hidden = true;
+      els.confetti.innerHTML = "";
+      renderStage();
+    }
+
+    els.startBtn.addEventListener("click", () => {
+      els.start.hidden = true;
+      resetGame();
+    });
+    els.restartBtn.addEventListener("click", resetGame);
+    els.restartTop.addEventListener("click", () => {
+      els.start.hidden = true;
+      resetGame();
+    });
+
+    renderStage();
+  </script>
+</body>
+</html>
