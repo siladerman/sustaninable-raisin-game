@@ -65,14 +65,48 @@
       box-shadow: var(--shadow);
     }
 
+    .phone[data-impact="good"] .impact-meter {
+      border-color: rgba(47, 138, 85, 0.36);
+      background: rgba(239, 249, 240, 0.9);
+    }
+
+    .phone[data-impact="mid"] .impact-meter {
+      border-color: rgba(198, 134, 42, 0.38);
+      background: rgba(255, 246, 225, 0.9);
+    }
+
+    .phone[data-impact="bad"] .impact-meter {
+      border-color: rgba(183, 75, 63, 0.36);
+      background: rgba(255, 239, 235, 0.9);
+    }
+
     .phone::before {
       content: "";
       position: absolute;
       inset: auto 0 0;
+      z-index: 0;
       height: 210px;
       background:
         repeating-linear-gradient(174deg, rgba(255,255,255,0.09) 0 2px, transparent 2px 18px),
         linear-gradient(180deg, #a8794c, #71462d);
+      pointer-events: none;
+    }
+
+    .phone::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 205px;
+      z-index: 0;
+      width: 142px;
+      height: 210px;
+      border-radius: 50% 50% 18px 18px;
+      background:
+        linear-gradient(90deg, transparent 0 45%, rgba(255,255,255,0.46) 46% 53%, transparent 54%),
+        linear-gradient(180deg, rgba(181, 130, 82, 0.2), rgba(112, 75, 49, 0.45));
+      clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+      transform: translateX(-50%);
+      opacity: 0.68;
       pointer-events: none;
     }
 
@@ -211,9 +245,90 @@
       overflow: visible;
     }
 
+    .road-scene {
+      position: absolute;
+      inset: 53px 16px 18px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .road-main,
+    .road-left,
+    .road-right {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      border-radius: 999px 999px 14px 14px;
+      background:
+        linear-gradient(90deg, transparent 0 47%, rgba(255,255,255,0.42) 48% 52%, transparent 53%),
+        linear-gradient(180deg, rgba(178, 127, 76, 0.26), rgba(93, 64, 43, 0.38));
+      box-shadow: inset 0 0 0 1px rgba(91, 62, 43, 0.12);
+      transform-origin: bottom center;
+    }
+
+    .road-main {
+      width: 86px;
+      height: 182px;
+      transform: translateX(-50%);
+      clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+    }
+
+    .road-left,
+    .road-right {
+      width: 52px;
+      height: 126px;
+      opacity: 0.76;
+      clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%);
+    }
+
+    .road-left {
+      transform: translateX(-68%) rotate(-38deg);
+    }
+
+    .road-right {
+      transform: translateX(-32%) rotate(38deg);
+    }
+
+    .fork-sign {
+      position: absolute;
+      left: 50%;
+      bottom: 60px;
+      width: 7px;
+      height: 58px;
+      border-radius: 999px;
+      background: #6b4931;
+      transform: translateX(-50%);
+      box-shadow: 0 5px 10px rgba(52, 37, 26, 0.16);
+    }
+
+    .fork-sign::before,
+    .fork-sign::after {
+      content: "";
+      position: absolute;
+      top: 7px;
+      width: 54px;
+      height: 18px;
+      border-radius: 6px 2px 2px 6px;
+      background: #f6e4bd;
+      border: 1px solid rgba(72, 45, 31, 0.18);
+    }
+
+    .fork-sign::before {
+      right: 3px;
+      transform: rotate(-18deg);
+      transform-origin: right center;
+    }
+
+    .fork-sign::after {
+      left: 3px;
+      transform: rotate(18deg);
+      transform-origin: left center;
+    }
+
     .scene-bubble {
       position: absolute;
       inset: 0 14px auto;
+      z-index: 3;
       min-height: 46px;
       padding: 9px 12px;
       border: 1px solid rgba(32, 31, 28, 0.12);
@@ -241,6 +356,7 @@
 
     .mascot-wrap {
       position: relative;
+      z-index: 2;
       width: min(78%, 282px);
       aspect-ratio: 1;
       margin-top: 66px;
@@ -267,13 +383,40 @@
       height: 80%;
       border-radius: 50% 50% 46% 54% / 58% 56% 44% 42%;
       background:
-        radial-gradient(circle at 33% 23%, rgba(255,255,255,0.55) 0 8%, transparent 9%),
+        radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.42) 0 7%, transparent 8%),
+        radial-gradient(ellipse at 66% 72%, rgba(37, 20, 13, 0.26) 0 10%, transparent 11%),
+        radial-gradient(ellipse at 32% 64%, rgba(44, 24, 16, 0.24) 0 7%, transparent 8%),
+        radial-gradient(ellipse at 58% 32%, rgba(122, 82, 50, 0.28) 0 6%, transparent 7%),
+        repeating-radial-gradient(ellipse at 52% 52%, rgba(255,255,255,0.045) 0 2px, rgba(36, 20, 14, 0.035) 3px 7px),
         radial-gradient(circle at 48% 42%, #9b6a43 0 20%, #653b23 58%, #351f16 100%);
       box-shadow:
         inset -17px -18px 24px rgba(38, 21, 13, 0.26),
         inset 10px 9px 16px rgba(255, 231, 190, 0.12),
         0 20px 24px rgba(48, 33, 23, 0.22);
       animation: mascotBounce 1.6s ease-in-out infinite;
+    }
+
+    .mascot .wrinkle {
+      position: absolute;
+      left: 21%;
+      top: 23%;
+      width: 58%;
+      height: 54%;
+      border-radius: 50%;
+      border-top: 2px solid rgba(35, 20, 14, 0.2);
+      border-left: 1px solid rgba(255,255,255,0.1);
+      opacity: 0.75;
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+
+    .mascot .wrinkle.two {
+      left: 31%;
+      top: 42%;
+      width: 42%;
+      height: 34%;
+      transform: rotate(20deg);
+      opacity: 0.62;
     }
 
     .mascot::before,
@@ -366,6 +509,7 @@
 
     .stage-prop {
       position: absolute;
+      z-index: 2;
       display: grid;
       place-items: center;
       width: 50px;
@@ -385,13 +529,13 @@
     }
 
     .prop-left {
-      left: 4%;
-      bottom: 13%;
+      left: 5%;
+      bottom: 16%;
     }
 
     .prop-right {
-      right: 4%;
-      bottom: 17%;
+      right: 5%;
+      bottom: 16%;
     }
 
     .spark {
@@ -413,7 +557,7 @@
     }
 
     .mascot-scene.pop .mascot-wrap {
-      transform: translateY(-6px) rotate(-2deg);
+      transform: translateY(-10px) rotate(-2deg);
     }
 
     .mascot-scene[data-phase="field"] .prop-left { color: var(--water); }
@@ -431,6 +575,58 @@
     .mascot-scene[data-phase="storage"] .prop-right { color: var(--factory); }
     .mascot-scene[data-phase="shipping"] .mascot-wrap { transform: translateX(12px) rotate(4deg); }
 
+    .mascot-scene[data-phase="result-good"] .road-scene::before,
+    .mascot-scene[data-phase="result-mid"] .road-scene::before,
+    .mascot-scene[data-phase="result-bad"] .road-scene::before {
+      content: "";
+      position: absolute;
+      inset: 42px -6px 0;
+      border-radius: 999px 999px 0 0;
+      z-index: -1;
+    }
+
+    .mascot-scene[data-phase="result-good"] .road-scene::before {
+      background:
+        radial-gradient(circle at 16% 38%, #f6b5c8 0 6px, transparent 7px),
+        radial-gradient(circle at 82% 34%, #f7d36d 0 6px, transparent 7px),
+        radial-gradient(circle at 28% 72%, #cf7fb0 0 5px, transparent 6px),
+        radial-gradient(circle at 70% 76%, #fff 0 4px, transparent 5px),
+        linear-gradient(180deg, rgba(175, 224, 155, 0.65), rgba(73, 139, 84, 0.5));
+    }
+
+    .mascot-scene[data-phase="result-mid"] .road-scene::before {
+      background:
+        radial-gradient(circle at 22% 58%, rgba(255,255,255,0.65) 0 4px, transparent 5px),
+        linear-gradient(180deg, rgba(200, 206, 151, 0.62), rgba(139, 154, 96, 0.42));
+    }
+
+    .mascot-scene[data-phase="result-bad"] .road-scene::before {
+      background:
+        linear-gradient(35deg, transparent 0 45%, rgba(96, 65, 45, 0.28) 46% 48%, transparent 49%),
+        linear-gradient(150deg, transparent 0 52%, rgba(96, 65, 45, 0.24) 53% 55%, transparent 56%),
+        linear-gradient(180deg, rgba(196, 156, 105, 0.66), rgba(139, 92, 58, 0.5));
+    }
+
+    .mascot-scene[data-phase="result-good"] .mascot {
+      animation: resultJump 680ms ease-in-out infinite;
+    }
+
+    .mascot-scene[data-phase="result-bad"] .mascot {
+      animation: sadWobble 900ms ease-in-out infinite;
+      filter: saturate(0.82);
+    }
+
+    .mascot-scene[data-phase="result-bad"] .smile {
+      top: 63%;
+      border-bottom: 0;
+      border-top: 5px solid #201713;
+      border-radius: 999px 999px 0 0;
+    }
+
+    .mascot-scene[data-phase="result-bad"] .mascot::after {
+      box-shadow: inset 2px 2px 0 rgba(255,255,255,0.42), 9px 19px 0 -4px #73b8d8;
+    }
+
     @keyframes mascotBounce {
       0%, 100% { transform: translateY(0) rotate(-1deg); }
       50% { transform: translateY(-7px) rotate(1deg); }
@@ -440,6 +636,12 @@
       0% { opacity: 0; transform: translateY(0) scale(0.4); }
       35% { opacity: 1; }
       100% { opacity: 0; transform: translateY(-28px) scale(1.1); }
+    }
+
+    @keyframes resultJump {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      45% { transform: translateY(-15px) rotate(3deg); }
+      65% { transform: translateY(-6px) rotate(-1deg); }
     }
 
     .stage-card {
@@ -522,6 +724,12 @@
       box-shadow: 0 12px 20px rgba(47, 138, 85, 0.14);
     }
 
+    .choice:disabled {
+      cursor: default;
+      opacity: 0.78;
+      transform: none;
+    }
+
     .choice strong {
       display: block;
       font-size: 0.86rem;
@@ -546,6 +754,61 @@
       border: 1px solid rgba(198, 134, 42, 0.2);
       background: #fff4dc;
       color: #4f4736;
+    }
+
+    .decision-toast {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: min(36vh, 284px);
+      z-index: 4;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid rgba(32, 31, 28, 0.14);
+      border-radius: 10px;
+      background: rgba(255, 252, 246, 0.96);
+      box-shadow: 0 16px 26px rgba(49, 39, 30, 0.18);
+      color: #3f4d45;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px) scale(0.98);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .decision-toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .toast-score {
+      display: grid;
+      place-items: center;
+      min-width: 44px;
+      height: 34px;
+      border-radius: 8px;
+      background: #31473c;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .toast-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .toast-copy strong {
+      font-size: 0.82rem;
+      line-height: 1.12;
+    }
+
+    .toast-copy span {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 760;
     }
 
     .impact-line {
@@ -608,6 +871,7 @@
 
     .modal {
       width: 100%;
+      max-width: 100%;
       display: grid;
       gap: 13px;
       padding: 18px;
@@ -615,6 +879,23 @@
       border-radius: 16px;
       background: rgba(255, 252, 246, 0.97);
       box-shadow: var(--shadow);
+      overflow-wrap: anywhere;
+    }
+
+    .result .modal {
+      max-height: calc(100% - 4px);
+      overflow: auto;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .result .modal h2 {
+      font-size: clamp(1.34rem, 6.2vw, 2rem);
+    }
+
+    .result .modal p {
+      font-size: 0.84rem;
+      line-height: 1.32;
     }
 
     .modal h1,
@@ -648,17 +929,48 @@
       position: relative;
       display: grid;
       place-items: center;
-      min-height: 92px;
+      min-height: 76px;
       overflow: hidden;
       border-radius: 10px;
       background: linear-gradient(180deg, #fff8e8, #eef6ed);
       border: 1px solid var(--line);
     }
 
+    .result-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .result-visual.celebrate::before {
+      background:
+        radial-gradient(circle at 14% 36%, #f5aac4 0 5px, transparent 6px),
+        radial-gradient(circle at 82% 34%, #f4cf66 0 5px, transparent 6px),
+        radial-gradient(circle at 29% 72%, #fff 0 4px, transparent 5px),
+        radial-gradient(circle at 72% 74%, #cf7fb0 0 4px, transparent 5px),
+        linear-gradient(180deg, #eaf7d9 0%, #9ccf86 55%, #5f9a61 100%);
+    }
+
+    .result-visual.happy::before {
+      background:
+        radial-gradient(circle at 18% 62%, rgba(255,255,255,0.7) 0 4px, transparent 5px),
+        radial-gradient(circle at 80% 58%, rgba(246, 211, 109, 0.72) 0 4px, transparent 5px),
+        linear-gradient(180deg, #f4edd8 0%, #c8ce97 58%, #8d9a60 100%);
+    }
+
+    .result-visual.cry::before {
+      background:
+        linear-gradient(35deg, transparent 0 45%, rgba(96, 65, 45, 0.28) 46% 48%, transparent 49%),
+        linear-gradient(150deg, transparent 0 52%, rgba(96, 65, 45, 0.24) 53% 55%, transparent 56%),
+        linear-gradient(180deg, #e4c496 0%, #c09261 58%, #8c5b3a 100%);
+    }
+
     .result-raisin {
       position: relative;
-      width: 74px;
-      height: 88px;
+      z-index: 1;
+      width: 62px;
+      height: 74px;
       border-radius: 48% 52% 45% 55% / 56% 54% 46% 44%;
       background:
         radial-gradient(circle at 35% 26%, rgba(255,255,255,0.34) 0 9%, transparent 10%),
@@ -679,8 +991,8 @@
       box-shadow: inset 2px 2px 0 rgba(255,255,255,0.42);
     }
 
-    .result-raisin::before { left: 22px; }
-    .result-raisin::after { right: 22px; }
+    .result-raisin::before { left: 18px; }
+    .result-raisin::after { right: 18px; }
 
     .result-mouth {
       position: absolute;
@@ -720,7 +1032,7 @@
     }
 
     .result-visual.celebrate .result-raisin {
-      animation: happyDance 560ms ease-in-out infinite;
+      animation: resultJump 620ms ease-in-out infinite;
     }
 
     .confetti {
@@ -770,7 +1082,7 @@
 
     .summary {
       min-width: 0;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #f4eadb;
@@ -791,10 +1103,53 @@
       line-height: 1;
     }
 
+    .result-note {
+      display: grid;
+      gap: 7px;
+      padding: 9px;
+      border: 1px solid rgba(72, 45, 31, 0.14);
+      border-radius: 8px;
+      background: #fff8e8;
+      color: #3f4d45;
+      font-size: 0.74rem;
+      line-height: 1.22;
+    }
+
+    .profile-bars {
+      display: grid;
+      gap: 6px;
+    }
+
+    .profile-row {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 7px;
+      align-items: center;
+      font-weight: 800;
+    }
+
+    .profile-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(32, 31, 28, 0.08);
+    }
+
+    .profile-fill {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--field);
+    }
+
+    .profile-row.mid .profile-fill { background: var(--mid); }
+    .profile-row.bad .profile-fill { background: var(--bad); }
+
     .history {
       display: grid;
       gap: 7px;
-      max-height: 170px;
+      max-height: 96px;
       overflow: auto;
       padding-right: 2px;
     }
@@ -856,9 +1211,16 @@
       }
 
       .stage-card {
-        max-height: 33vh;
-        gap: 7px;
-        padding: 11px;
+        max-height: 36vh;
+        gap: 6px;
+        padding: 10px;
+      }
+
+      .decision-toast {
+        left: 22px;
+        right: 22px;
+        bottom: min(34vh, 244px);
+        padding: 9px 10px;
       }
 
       .stage-copy {
@@ -866,8 +1228,13 @@
       }
 
       .choice {
-        min-height: 42px;
-        padding: 9px 11px;
+        min-height: 39px;
+        padding: 8px 10px;
+      }
+
+      .choice strong {
+        font-size: 0.8rem;
+        line-height: 1.12;
       }
     }
 
@@ -883,7 +1250,7 @@
   </style>
 </head>
 <body>
-  <main class="phone" aria-label="Kuru üzüm üretimi yaşam döngüsü değerlendirmesi oyunu">
+  <main class="phone" id="phoneFrame" aria-label="Kuru üzüm üretimi yaşam döngüsü değerlendirmesi oyunu">
     <section class="game">
       <header class="topbar">
         <div class="brand">
@@ -903,7 +1270,7 @@
           <span>Puan</span>
           <strong id="score">0</strong>
         </div>
-        <div class="meter">
+        <div class="meter impact-meter">
           <span>GWP Etkisi</span>
           <strong id="impactMeter">Başlangıç</strong>
         </div>
@@ -911,14 +1278,22 @@
 
       <div class="progress-wrap">
         <div class="progress-label">
-          <span id="stepText">Karar 1 / 15</span>
+          <span id="stepText">Karar 1 / 12</span>
           <span id="bestText">En iyi: 0</span>
         </div>
         <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
       </div>
 
+      <div class="decision-toast" id="decisionToast" aria-live="polite"></div>
+
       <section class="field" aria-hidden="true">
         <div class="mascot-scene" id="mascotScene" data-phase="field">
+          <div class="road-scene" aria-hidden="true">
+            <span class="road-left"></span>
+            <span class="road-main"></span>
+            <span class="road-right"></span>
+            <span class="fork-sign"></span>
+          </div>
           <div class="scene-bubble">
             <strong id="sceneTitle">Bağda büyüyor</strong>
             <span id="sceneText">Maskot üzüm yolculuğa hazır.</span>
@@ -933,6 +1308,8 @@
               <span class="leaf-hat"></span>
               <span class="arm left"></span>
               <span class="arm right"></span>
+              <span class="wrinkle"></span>
+              <span class="wrinkle two"></span>
               <span class="smile"></span>
             </div>
           </div>
@@ -990,6 +1367,7 @@
             <strong id="finalAward">-</strong>
           </div>
         </div>
+        <div class="result-note" id="resultNote"></div>
         <div class="history" id="history"></div>
         <button class="primary" type="button" id="restartBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -1011,9 +1389,9 @@
         title: "Üzüm bağdan nasıl ayrılıyor? 🌿",
         copy: "Yetiştirme kısa tutulur; oyun ağırlıklı olarak fabrika proseslerine odaklanır.",
         options: [
-          { label: "Sensörlü sulama ve kayıtlı bakım", points: 10, impact: "good" },
-          { label: "Standart sulama ve dönemsel bakım", points: 5, impact: "mid" },
-          { label: "Plansız sulama ve yoğun girdi kullanımı", points: 0, impact: "bad" }
+          { label: "Nem ölçümüne göre sulama ve kayıtlı bakım", points: 10, impact: "good" },
+          { label: "Deneyime dayalı sulama ve dönemsel kayıt", points: 5, impact: "mid" },
+          { label: "Verim güvencesi için sık sulama ve ek girdi", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1023,9 +1401,9 @@
         title: "Kasa fabrikaya nasıl geliyor? 🚚",
         copy: "Bu aşamada ürün kaybı ve taşıma düzeni önemlidir.",
         options: [
-          { label: "Tam dolu araç ve kısa bekleme", points: 10, impact: "good" },
-          { label: "Normal araç doluluğu ve standart bekleme", points: 5, impact: "mid" },
-          { label: "Parçalı taşıma ve uzun bekleme", points: 0, impact: "bad" }
+          { label: "Planlı kasa doluluğu ve kısa bekleme", points: 10, impact: "good" },
+          { label: "Ezilmeyi azaltan yarı dolu sevkiyat", points: 5, impact: "mid" },
+          { label: "Acil kabul için küçük partili taşıma", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1035,9 +1413,9 @@
         title: "Fabrikada ilk kontrol nasıl yapılıyor? 🔍",
         copy: "Nem, yabancı madde ve parti takibi sonraki prosesleri etkiler.",
         options: [
-          { label: "Nem ölçümü ve parti izlenebilirliği", points: 10, impact: "good" },
-          { label: "Temel tartım ve görsel kontrol", points: 5, impact: "mid" },
-          { label: "Karışık parti kabulü", points: 0, impact: "bad" }
+          { label: "Nem, yabancı madde ve parti kodu kaydı", points: 10, impact: "good" },
+          { label: "Hızlı görsel kontrol, tartım ve kabul notu", points: 5, impact: "mid" },
+          { label: "Benzer partileri aynı hatta birleştirme", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1047,9 +1425,9 @@
         title: "Üzüm nasıl yıkanıyor? 💧",
         copy: "Yıkama suyu ve atık su yükü nitel etki sınıfını belirler.",
         options: [
-          { label: "Filtrasyonlu kapalı devre yıkama", points: 10, impact: "good" },
-          { label: "Kontrollü tek geçişli yıkama", points: 5, impact: "mid" },
-          { label: "Sürekli açık suyla yıkama", points: 0, impact: "bad" }
+          { label: "Filtreli geri devir ve taze su takviyesi", points: 10, impact: "good" },
+          { label: "Kontrollü debiyle tek geçişli yıkama", points: 5, impact: "mid" },
+          { label: "Hijyen için sürekli taze su akışı", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1059,9 +1437,9 @@
         title: "Sap ve yabancı maddeler nasıl ayrılıyor? ✂️",
         copy: "Ekipman verimi, ürün kaybını ve elektrik etkisini değiştirir.",
         options: [
-          { label: "Verimli hassas sap ayırma hattı", points: 10, impact: "good" },
-          { label: "Standart mekanik ayırma", points: 5, impact: "mid" },
-          { label: "Tekrarlı geçiş gerektiren eski ekipman", points: 0, impact: "bad" }
+          { label: "Ayarlı hassas hatla tek geçişte sap ayırma", points: 10, impact: "good" },
+          { label: "Standart mekanik ayırma ve gerekli parti tekrarı", points: 5, impact: "mid" },
+          { label: "Düşük yatırım için eski hattı uzun çalıştırma", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1071,9 +1449,9 @@
         title: "Kurutma yöntemi ne olsun? ☀️",
         copy: "Kurutma prosesi kuru üzüm üretiminde kritik etki noktalarından biridir.",
         options: [
-          { label: "Hijyenik güneş kurutma", points: 10, impact: "good" },
-          { label: "Hibrit düşük enerjili kurutucu", points: 5, impact: "mid" },
-          { label: "Fosil yakıtlı hızlı kurutma", points: 0, impact: "bad" }
+          { label: "Kontrollü alanda hijyenik güneş kurutma", points: 10, impact: "good" },
+          { label: "Yağış riski için hibrit düşük enerjili kurutucu", points: 5, impact: "mid" },
+          { label: "Termin için fosil yakıt destekli hızlı kurutma", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1083,9 +1461,9 @@
         title: "Nem kontrolü nasıl yönetiliyor? 🌡️",
         copy: "Aşırı kurutma enerji kaybı, eksik kurutma ise yeniden işlem riski oluşturur.",
         options: [
-          { label: "Sensörlü nem takibi", points: 10, impact: "good" },
-          { label: "Parti sonu manuel kontrol", points: 5, impact: "mid" },
-          { label: "Tahmini süreyle kontrolsüz kurutma", points: 0, impact: "bad" }
+          { label: "Nem sensörüyle hedef aralıkta durdurma", points: 10, impact: "good" },
+          { label: "Usta kontrolüyle parti sonu numune alma", points: 5, impact: "mid" },
+          { label: "Her partiye aynı süreyle hızlı karar", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1095,9 +1473,9 @@
         title: "Yağlama uygulaması nasıl yapılsın? ✨",
         copy: "Doz ve uygulama düzeni yardımcı madde etkisini belirler.",
         options: [
-          { label: "Düşük doz otomatik püskürtme", points: 10, impact: "good" },
-          { label: "Standart manuel yağlama", points: 5, impact: "mid" },
-          { label: "Aşırı yağ kullanımı", points: 0, impact: "bad" }
+          { label: "Kalibre püskürtme ile düşük doz uygulama", points: 10, impact: "good" },
+          { label: "Görünüm için operatör kontrollü yağlama", points: 5, impact: "mid" },
+          { label: "Parlaklık farkı olmasın diye yüksek doz", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1107,9 +1485,9 @@
         title: "Ayıklama hattı nasıl çalışsın? 🎛️",
         copy: "Ayıklama kalitesi, fire ve tekrar işlem miktarını etkiler.",
         options: [
-          { label: "Optik ayıklama ve yan ürün değerlendirme", points: 10, impact: "good" },
-          { label: "Standart elek ve manuel kontrol", points: 5, impact: "mid" },
-          { label: "Tekrarlı ayıklama ve yüksek fire", points: 0, impact: "bad" }
+          { label: "Optik ayıklama ve fireyi yan ürüne ayırma", points: 10, impact: "good" },
+          { label: "Elek ve manuel kontrolü birlikte kullanma", points: 5, impact: "mid" },
+          { label: "Seçici kalite için çoklu ayıklama tekrarı", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1119,9 +1497,9 @@
         title: "Paketleme nasıl olsun? 📦",
         copy: "Ambalaj kütlesi ve koruma seviyesi birlikte düşünülür.",
         options: [
-          { label: "Hafif ve geri dönüştürülebilir ambalaj", points: 10, impact: "good" },
-          { label: "Standart plastik ambalaj", points: 5, impact: "mid" },
-          { label: "Ağır ve çok katmanlı ambalaj", points: 0, impact: "bad" }
+          { label: "Koruyucu, hafif ve geri dönüştürülebilir ambalaj", points: 10, impact: "good" },
+          { label: "Raf ömrü için standart bariyerli plastik", points: 5, impact: "mid" },
+          { label: "Hasarı azaltan kalın çok katmanlı paket", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1131,9 +1509,9 @@
         title: "Depoda nasıl beklesin? 🏬",
         copy: "Nem ve sıcaklık yönetimi ürün kaybını azaltabilir.",
         options: [
-          { label: "Nem izlemeli pasif serinletme", points: 10, impact: "good" },
-          { label: "Standart depo havalandırması", points: 5, impact: "mid" },
-          { label: "Kontrolsüz sıcak depo", points: 0, impact: "bad" }
+          { label: "Nem izleme ve pasif serinletmeyle bekletme", points: 10, impact: "good" },
+          { label: "Mevcut havalandırmayla kısa süreli bekletme", points: 5, impact: "mid" },
+          { label: "Yoğun dolu depoda sevkiyat bekletme", points: 0, impact: "bad" }
         ]
       },
       {
@@ -1143,9 +1521,9 @@
         title: "Kuru üzüm nereye kargolansın? 🌍",
         copy: "Son karar taşıma mesafesine göre düşük, orta veya yüksek etki verir.",
         options: [
-          { label: "Türkiye içi sevkiyat", points: 10, impact: "good" },
-          { label: "Avrupa pazarı", points: 5, impact: "mid" },
-          { label: "Japonya pazarı", points: 0, impact: "bad" }
+          { label: "Türkiye içi pazara kısa dağıtım", points: 10, impact: "good" },
+          { label: "Avrupa pazarına konsolide ihracat", points: 5, impact: "mid" },
+          { label: "Japonya pazarına uzak mesafe rotası", points: 0, impact: "bad" }
         ]
       }
     ];
@@ -1183,17 +1561,20 @@
       check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"></path></svg>',
       warehouse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21V8l9-5 9 5v13"></path><path d="M7 21v-8h10v8"></path><path d="M9 16h6"></path></svg>'
     };
-    const stepDelayMs = 360;
+    const stepDelayMs = 560;
     let audioContext;
+    let toastTimer;
 
     const state = {
       step: 0,
       score: 0,
       lastImpact: "Başlangıç",
+      lastImpactKey: "",
       history: []
     };
 
     const els = {
+      phone: document.getElementById("phoneFrame"),
       start: document.getElementById("startScreen"),
       result: document.getElementById("resultScreen"),
       startBtn: document.getElementById("startBtn"),
@@ -1211,6 +1592,7 @@
       options: document.getElementById("options"),
       stageCard: document.querySelector(".stage-card"),
       feedback: document.getElementById("feedback"),
+      toast: document.getElementById("decisionToast"),
       mascotScene: document.getElementById("mascotScene"),
       sceneTitle: document.getElementById("sceneTitle"),
       sceneText: document.getElementById("sceneText"),
@@ -1223,6 +1605,7 @@
       confetti: document.getElementById("confetti"),
       resultTitle: document.getElementById("resultTitle"),
       resultCopy: document.getElementById("resultCopy"),
+      resultNote: document.getElementById("resultNote"),
       history: document.getElementById("history")
     };
 
@@ -1245,6 +1628,13 @@
       if (impact === "mid") return "Orta";
       if (impact === "bad") return "Yüksek";
       return "Başlangıç";
+    }
+
+    function impactText(impact) {
+      if (impact === "good") return "Düşük GWP etkili karar";
+      if (impact === "mid") return "Orta GWP etkili karar";
+      if (impact === "bad") return "Yüksek GWP etkili karar";
+      return "Karar kaydedildi";
     }
 
     function resultTier(score) {
@@ -1285,12 +1675,67 @@
       els.propRight.innerHTML = propIcons[visual.right] || "";
     }
 
+    function renderResultScene(tier) {
+      const scenes = {
+        good: {
+          phase: "result-good",
+          title: "Çiçekli bahçeye ulaştı",
+          text: "Maskot gülerek zıplıyor; yol çok iyi bitti.",
+          left: "leaf",
+          right: "sparkle"
+        },
+        mid: {
+          phase: "result-mid",
+          title: "Standart bahçede durdu",
+          text: "Yol fena değil, birkaç kavşak daha iyileşebilir.",
+          left: "warehouse",
+          right: "leaf"
+        },
+        bad: {
+          phase: "result-bad",
+          title: "Çorak bahçeye vardı",
+          text: "Maskot üzüm ağlıyor; rota yeniden düşünülmeli.",
+          left: "thermo",
+          right: "drop"
+        }
+      };
+      const visual = scenes[tier] || scenes.mid;
+      els.mascotScene.dataset.phase = visual.phase;
+      els.sceneTitle.textContent = visual.title;
+      els.sceneText.textContent = visual.text;
+      els.propLeft.innerHTML = propIcons[visual.left] || "";
+      els.propRight.innerHTML = propIcons[visual.right] || "";
+    }
+
     function renderStats() {
       els.score.textContent = state.score;
       els.impactMeter.textContent = state.lastImpact;
+      if (state.lastImpactKey) {
+        els.phone.dataset.impact = state.lastImpactKey;
+      } else {
+        delete els.phone.dataset.impact;
+      }
       els.bestText.textContent = "En iyi: " + getBest();
       els.stepText.textContent = "Karar " + Math.min(state.step + 1, stages.length) + " / " + stages.length;
       els.progress.style.width = (state.step / stages.length * 100) + "%";
+    }
+
+    function showDecisionToast(option) {
+      clearTimeout(toastTimer);
+      els.toast.innerHTML = `
+        <span class="toast-score">+${option.points}</span>
+        <span class="toast-copy">
+          <strong>Seçim kaydedildi</strong>
+          <span>${impactText(option.impact)}</span>
+        </span>
+      `;
+      els.toast.classList.add("show");
+      toastTimer = setTimeout(hideDecisionToast, 1150);
+    }
+
+    function hideDecisionToast() {
+      clearTimeout(toastTimer);
+      els.toast.classList.remove("show");
     }
 
     function renderStage() {
@@ -1367,15 +1812,18 @@
       pulseMascot();
       state.score += option.points;
       state.lastImpact = impactLabel(option.impact);
+      state.lastImpactKey = option.impact;
       state.history.push({
         stage: stage.category,
         title: stage.title,
         choice: option.label,
         points: option.points,
-        impact: impactLabel(option.impact)
+        impact: impactLabel(option.impact),
+        impactKey: option.impact
       });
 
       renderStats();
+      showDecisionToast(option);
       Array.from(els.options.children).forEach((button) => {
         button.disabled = true;
       });
@@ -1397,13 +1845,14 @@
       const award = awardFor(state.score);
       const tier = resultTier(state.score);
       els.progress.style.width = "100%";
-      renderScene(stages.length - 1);
+      renderResultScene(tier);
       els.finalScore.textContent = state.score;
       els.finalImpact.textContent = finalImpactFor(state.score);
       els.finalAward.textContent = award;
       els.bestText.textContent = "En iyi: " + best;
       els.resultTitle.textContent = award;
       els.resultCopy.textContent = resultMessage(award);
+      els.resultNote.innerHTML = resultProfile();
       els.resultVisual.className = "result-visual " + (tier === "good" ? "celebrate" : tier === "mid" ? "happy" : "cry");
       els.confetti.innerHTML = "";
       if (tier === "good") {
@@ -1412,7 +1861,7 @@
       els.history.innerHTML = state.history.map((item) => `
         <div class="history-row">
           <span><b>${item.stage}</b><br>${item.choice}</span>
-          <i>+${item.points} / ${item.impact}</i>
+          <i>+${item.points} · ${item.impact}</i>
         </div>
       `).join("");
       els.result.hidden = false;
@@ -1420,12 +1869,44 @@
 
     function resultMessage(award) {
       if (award === "Harika Sonuç") {
-        return "Maksimum puana çok yakın bir rota seçtin. Kuru üzüm maskotu bu sonucu konfetiyle kutluyor.";
+        return "Maksimum puana çok yakın bir rota seçtin. Kuru üzüm maskotu çiçekli bahçeye ulaştı, gülerek zıplıyor ve konfeti patlıyor.";
       }
       if (award === "Orta Sonuç") {
-        return "Rota fena değil. Maskot gülümsüyor, ama bazı proseslerde daha düşük etkili seçimler yapılabilir.";
+        return "Rota standart bir bahçede tamamlandı. Maskot gülümsüyor, ama bazı kavşaklarda daha düşük etkili seçimler yapılabilir.";
       }
-      return "Bu rotada çevresel etki riski yüksek kaldı. Maskot üzüm biraz üzgün; özellikle kurutma, ambalaj ve kargo kararları tekrar düşünülebilir.";
+      return "Bu rotada çevresel etki riski yüksek kaldı. Maskot üzüm çorak bahçeye ulaştı ve ağlıyor; özellikle kurutma, ambalaj ve kargo kararları tekrar düşünülebilir.";
+    }
+
+    function resultProfile() {
+      const total = state.history.length || 1;
+      const counts = state.history.reduce((acc, item) => {
+        acc[item.impactKey] += 1;
+        return acc;
+      }, { good: 0, mid: 0, bad: 0 });
+      const reviewItems = state.history
+        .filter((item) => item.impactKey === "bad")
+        .concat(state.history.filter((item) => item.impactKey === "mid"))
+        .slice(0, 3)
+        .map((item) => item.stage);
+      const reviewText = reviewItems.length
+        ? "İyileştirme için öncelikli aşamalar: " + reviewItems.join(", ") + "."
+        : "Seçimlerin proses sıcak noktalarını dengeli biçimde yönetti.";
+      const rows = [
+        { key: "good", label: "Düşük", count: counts.good },
+        { key: "mid", label: "Orta", count: counts.mid },
+        { key: "bad", label: "Yüksek", count: counts.bad }
+      ].map((row) => `
+        <div class="profile-row ${row.key}">
+          <span>${row.label}</span>
+          <span class="profile-track"><i class="profile-fill" style="width:${row.count / total * 100}%"></i></span>
+          <span>${row.count}</span>
+        </div>
+      `).join("");
+      return `
+        <strong>LCA karar profili</strong>
+        <div class="profile-bars">${rows}</div>
+        <span>${reviewText}</span>
+      `;
     }
 
     function launchConfetti() {
@@ -1443,9 +1924,11 @@
       state.step = 0;
       state.score = 0;
       state.lastImpact = "Başlangıç";
+      state.lastImpactKey = "";
       state.history = [];
       els.result.hidden = true;
       els.confetti.innerHTML = "";
+      hideDecisionToast();
       renderStage();
     }
 
